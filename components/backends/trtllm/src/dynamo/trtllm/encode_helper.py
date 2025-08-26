@@ -100,7 +100,7 @@ class EncodeHelper:
 
     @staticmethod
     async def read_embeddings_from_encode_response(
-        encode_response: Dict[str, Any], connector: "nixl_connect.Connector"
+        encode_response: Dict[str, Any], connector: nixl_connect.Connector
     ) -> Union[torch.Tensor, Dict[str, torch.Tensor]]:
         """
         Read embeddings from encode worker response using NIXL and reconstruct original format.
@@ -116,7 +116,7 @@ class EncodeHelper:
             RuntimeError: If there's an error in the encode response or NIXL operations
         """
         if nixl_connect is None:
-            raise RuntimeError("NIXL connect library not available")
+            raise RuntimeError("Dynamo NIXL Connect library is not available.")
 
         if "error" in encode_response:
             raise RuntimeError(f"EncodeHandler error: {encode_response['error']}")
@@ -164,7 +164,7 @@ class EncodeHelper:
     async def process_embedding_request(
         request: Dict[str, Any],
         multimodal_processor,
-        connector: "nixl_connect.Connector",
+        connector: nixl_connect.Connector,
     ):
         """
         Process embedding request by loading embeddings and creating NIXL readable operation.
