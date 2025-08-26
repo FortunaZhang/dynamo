@@ -46,6 +46,7 @@ func (d *GroveMultinodeDeployer) GetHostNames(serviceName string, numberOfNodes 
 // - PodCliqueScalingGroups: spec.replicas == status.availableReplicas
 func EvaluateAllComponentsReady(ctx context.Context, client client.Client, dgd *nvidiacomv1alpha1.DynamoGraphDeployment) (bool, string) {
 	logger := log.FromContext(ctx)
+	var notReadyComponents []string
 
 	replicaIndex := 0
 	for serviceName, component := range dgd.Spec.Services {
@@ -56,14 +57,18 @@ func EvaluateAllComponentsReady(ctx context.Context, client client.Client, dgd *
 		if isMultinode {
 			// Check PodCliqueScalingGroup: spec.replicas == status.availableReplicas
 			if ok, reason := isPCSGReady(ctx, client, resourceName, dgd.Namespace, logger); !ok {
-				return false, fmt.Sprintf("pcsg/%s: %s", resourceName, reason)
+				notReadyComponents = append(notReadyComponents, fmt.Sprintf("pcsg/%s: %s", resourceName, reason))
 			}
 		} else {
 			// Check PodClique: spec.replicas == status.readyReplicas
 			if ok, reason := isPodCliqueReady(ctx, client, resourceName, dgd.Namespace, logger); !ok {
-				return false, fmt.Sprintf("podclique/%s: %s", resourceName, reason)
+				notReadyComponents = append(notReadyComponents, fmt.Sprintf("podclique/%s: %s", resourceName, reason))
 			}
 		}
+	}
+
+	if len(notReadyComponents) > 0 {
+		return false, strings.Join(notReadyComponents, "; ")
 	}
 
 	return true, ""
