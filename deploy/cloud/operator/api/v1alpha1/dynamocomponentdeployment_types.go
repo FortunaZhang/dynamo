@@ -210,7 +210,7 @@ func (s *DynamoComponentDeployment) IsReady() (bool, string) {
 func (s *DynamoComponentDeploymentStatus) IsReady() (bool, string) {
 	for _, condition := range s.Conditions {
 		if condition.Type == DynamoGraphDeploymentConditionTypeAvailable && condition.Status == metav1.ConditionTrue {
-			return true, "Component deployment is ready"
+			return true, ""
 		}
 	}
 	return false, "Component deployment not ready - Available condition not true"
