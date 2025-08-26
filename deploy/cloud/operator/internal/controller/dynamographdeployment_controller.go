@@ -274,11 +274,11 @@ func (r *DynamoGraphDeploymentReconciler) reconcileGroveResources(ctx context.Co
 		syncedGroveGangSet,
 		func() (bool, string) {
 			// Grove readiness: all underlying PodCliques and PodCliqueScalingGroups have replicas == availableReplicas
-			allComponentsReady := dynamo.EvaluateAllComponentsReady(ctx, r.Client, dynamoDeployment)
+			allComponentsReady, reason := dynamo.EvaluateAllComponentsReady(ctx, r.Client, dynamoDeployment)
 			if !allComponentsReady {
-				return false, "Not all PodCliques/PCSGs have replicas equal to availableReplicas"
+				return false, reason
 			}
-			return true, "All Grove components ready"
+			return true, ""
 		},
 	)
 
